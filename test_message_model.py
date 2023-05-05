@@ -53,11 +53,6 @@ class MessageModelTestCase(TestCase):
     def tearDown(self):
         db.session.rollback()
 
-    #TODO: test u1.messages contains the messages the user have created
-    # test that u1.messages does not contain any messages the user did not create
-    # test that u1 likes a u2 message and in the message_2.liked_by_users contains u1
-    # test that a message text is equivalent to the actual message text
-
     def test_text_in_message(self):
 
         u1 = User.query.get(self.u1_id)
