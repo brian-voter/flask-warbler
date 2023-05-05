@@ -89,6 +89,8 @@ class UserModelTestCase(TestCase):
     def test_user_signup_success(self):
         u = User.signup("u", "u@gmail.com", "password", "")
 
+        #TODO: check actual user/email is correct
+
         db.session.add(u)
         db.session.commit()
 
@@ -97,6 +99,8 @@ class UserModelTestCase(TestCase):
 
 
     def test_user_signup_failure(self):
+
+        # duplicate username
         u = User.signup("u1", "u@gmail.com", "password", "")
 
         db.session.add(u)
@@ -107,7 +111,8 @@ class UserModelTestCase(TestCase):
             db.session.commit()
 
         db.session.rollback()
-
+        #TODO: break into two tests
+        # duplicate email
         u3 = User.signup("u", "u1@email.com", "password", "")
         db.session.add(u3)
 
@@ -115,13 +120,13 @@ class UserModelTestCase(TestCase):
             IntegrityError):
 
             db.session.commit()
-        
+
     def test_user_authentication_valid(self):
 
         u1 = User.query.get(self.u1_id)
 
         self.assertTrue(u1.authenticate(u1.username, "password"))
-       
+
 
     def test_user_authentication_invalid(self):
 

@@ -119,10 +119,10 @@ class UserAuthTestCase(UserBaseViewTestCase):
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
-
             self.assertIn("<!-- login template id -->", html)
             self.assertIn("Invalid credentials.", html)
 
+#TODO: break into 2 tests
             # test with invalid username
             resp = c.post(
                 "/login",
@@ -137,6 +137,7 @@ class UserAuthTestCase(UserBaseViewTestCase):
             self.assertIn("<!-- login template id -->", html)
             self.assertIn("Invalid credentials.", html)
 
+#TODO: more descriptive function names
     def test_anon_view_profile(self):
         with self.client as c:
             resp = c.get("/users/1", follow_redirects=True)
@@ -158,9 +159,6 @@ class UserAuthTestCase(UserBaseViewTestCase):
             self.assertEqual(resp.status_code, 200)
             self.assertIn("<!-- show template id -->", html)
             self.assertIn("@u1", html)
-
-            # FIXME: test follow/unfollow
-
 
 class UserFollowTestCase(UserBaseViewTestCase):
     def test_follow_user(self):
@@ -264,3 +262,5 @@ class UserEditProfileTestCase(UserBaseViewTestCase):
             # new username should still be in the form
             self.assertIn("Test1234", html)
             self.assertIn("Invalid Password", html)
+
+    #FIXME: add test for logout
