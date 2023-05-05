@@ -108,15 +108,17 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
             self.assertIn("<!-- show template id -->", html)
             self.assertIn("test text 1234", html)
 
+class MessageDeleteTestCase(MessageBaseViewTestCase):
+
     def test_delete__message_logged_in(self):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.u1_id
-        
+
         resp = c.post(
                 f"/messages/{self.m1_id}/delete",
                 follow_redirects = True)
-                
+
         html = resp.get_data(as_text=True)
 
         self.assertEqual(resp.status_code, 200)
@@ -129,7 +131,7 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
             resp = c.post(
                     f"/messages/{self.m1_id}/delete",
                     follow_redirects = True)
-            
+
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
@@ -144,7 +146,7 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
             resp = c.post(
                     f"/messages/{self.m2_id}/delete",
                     follow_redirects = True)
-            
+
             html = resp.get_data(as_text=True)
 
             self.assertEqual(resp.status_code, 200)
@@ -164,8 +166,7 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
 
             self.assertEqual(m2.text, "m2-text")
 
-    #TODO: test a liking message 
-    # test unliking a message 
+class MessageLikeTestCase(MessageBaseViewTestCase):
 
     def test_liking_message(self):
         with self.client as c:
@@ -176,13 +177,29 @@ class MessageAddViewTestCase(MessageBaseViewTestCase):
                     f"/messages/{self.m2_id}/toggle-like",
                     data = {'from-page': f'/messages/{self.m2_id}'},
                     follow_redirects = True)
-        
+
         # check if the star is filled in upon a like
         html = resp.get_data(as_text=True)
 
         self.assertIn('filled-gold', html)
 
-        
+    def test_disliking_message(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.u1_id
 
+        m2 = Message.query.get(self.m2_id)
+        u1 = User.query.get(self.u1_id)
+        u1.liked_messages.append(m2)
+        db.session.commit()
 
+        resp = c.post(
+                    f"/messages/{self.m2_id}/toggle-like",
+                    data = {'from-page': f'/messages/{self.m2_id}'},
+                    follow_redirects = True)
 
+        html = resp.get_data(as_text=True)
+
+        # star should be present but not filled in
+        self.assertNotIn('filled-gold', html)
+        self.assertIn("bi-star", html)
